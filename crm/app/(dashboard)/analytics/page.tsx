@@ -11,6 +11,8 @@ interface AnalyticsData {
   managerStats: { name: string; wonDeals: number; wonAmount: number }[]
   taskStats: { status: string; _count: { status: number } }[]
   wonTotal: { count: number; amount: number }
+  openCount: number
+  openAmount: number
 }
 
 export default function AnalyticsPage() {
@@ -27,8 +29,8 @@ export default function AnalyticsPage() {
     </div>
   )
 
-  const totalDeals = data.stageStats.reduce((sum, s) => sum + s.count, 0)
-  const totalAmount = data.stageStats.reduce((sum, s) => sum + s.total, 0)
+  const totalDeals = data.openCount ?? 0
+  const totalAmount = data.openAmount ?? 0
 
   const taskStatusLabels: Record<string, string> = {
     PENDING: 'Ожидают', IN_PROGRESS: 'В работе', DONE: 'Выполнено', OVERDUE: 'Просрочено',

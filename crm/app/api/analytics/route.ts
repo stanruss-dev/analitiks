@@ -12,7 +12,7 @@ export async function GET() {
     const [dealsByStage, allDeals, topManagers, taskStats, wonStats] = await Promise.all([
       prisma.stage.findMany({
         include: {
-          deals: { where: { status: 'OPEN' }, select: { amount: true } },
+          deals: { where: { status: { not: 'LOST' } }, select: { amount: true, status: true } },
         },
         orderBy: { order: 'asc' },
       }),
@@ -46,6 +46,9 @@ export async function GET() {
       total: s.deals.reduce((sum, d) => sum + d.amount, 0),
     }))
 
+    const openCount = allDeals.length
+    const openAmount = allDeals.reduce((sum, d) => sum + d.amount, 0)
+
     const wonTotal = {
       count: wonStats.length,
       amount: wonStats.reduce((sum, d) => sum + d.amount, 0),
@@ -73,7 +76,7 @@ export async function GET() {
       .sort((a, b) => b.wonAmount - a.wonAmount)
       .slice(0, 5)
 
-    return Response.json({ stageStats, dealsByMonth, managerStats, taskStats, wonTotal })
+    return Response.json({ stageStats, dealsByMonth, managerStats, taskStats, wonTotal, openCount, openAmount })
   } catch (error) {
     log.error('Ошибка получения аналитики', error)
     return Response.json({ error: 'Ошибка сервера' }, { status: 500 })
