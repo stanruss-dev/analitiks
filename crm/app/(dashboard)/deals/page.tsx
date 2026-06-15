@@ -5,6 +5,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Header } from '@/components/header'
 import { formatCurrency } from '@/lib/utils'
 import { Plus, X } from 'lucide-react'
+import Link from 'next/link'
 
 interface Stage { id: string; name: string; color: string; order: number }
 interface Deal {
@@ -140,7 +141,7 @@ export default function DealsPage() {
                                 }`}
                               >
                                 <div className="flex items-start justify-between gap-1">
-                                  <span className="font-medium text-sm text-gray-900 leading-snug">{deal.title}</span>
+                                  <Link href={`/deals/${deal.id}`} className="font-medium text-sm text-gray-900 leading-snug hover:text-indigo-600 hover:underline">{deal.title}</Link>
                                   <button onClick={() => deleteDeal(deal.id)} className="text-gray-200 hover:text-red-400 flex-shrink-0 mt-0.5">
                                     <X size={13} />
                                   </button>
