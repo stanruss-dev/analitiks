@@ -14,6 +14,12 @@ interface Deal {
   tags: string
 }
 
+const statusBadge: Record<string, { label: string; cls: string }> = {
+  WON:  { label: 'Выиграна', cls: 'bg-green-100 text-green-700' },
+  LOST: { label: 'Проиграна', cls: 'bg-red-100 text-red-600' },
+  OPEN: { label: '',          cls: '' },
+}
+
 export default function DealsPage() {
   const [stages, setStages] = useState<Stage[]>([])
   const [deals, setDeals] = useState<Deal[]>([])
@@ -26,7 +32,7 @@ export default function DealsPage() {
       fetch('/api/deals').then(r => r.json()),
     ])
     if (pRes[0]?.stages) setStages(pRes[0].stages)
-    setDeals(Array.isArray(dRes) ? dRes.filter((d: Deal) => d.status === 'OPEN') : [])
+    setDeals(Array.isArray(dRes) ? dRes : [])
     if (pRes[0]?.stages?.[0] && !newDeal.stageId) {
       setNewDeal(p => ({ ...p, stageId: pRes[0].stages[0].id }))
     }
@@ -63,22 +69,34 @@ export default function DealsPage() {
     }
   }
 
-  async function closeDeal(id: string, status: 'WON' | 'LOST') {
+  async function setStatus(id: string, status: 'WON' | 'LOST' | 'OPEN') {
     await fetch(`/api/deals/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
+    setDeals(prev => prev.map(d => d.id === id ? { ...d, status } : d))
+  }
+
+  async function deleteDeal(id: string) {
+    await fetch(`/api/deals/${id}`, { method: 'DELETE' })
     setDeals(prev => prev.filter(d => d.id !== id))
   }
 
   const stageDeals = (stageId: string) => deals.filter(d => d.stageId === stageId)
+  const openCount = deals.filter(d => d.status === 'OPEN').length
+  const wonCount  = deals.filter(d => d.status === 'WON').length
+  const lostCount = deals.filter(d => d.status === 'LOST').length
 
   return (
     <div className="flex flex-col flex-1">
       <Header title="Воронка сделок" />
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
-        <span className="text-sm text-gray-500">{deals.length} открытых сделок</span>
+        <div className="flex items-center gap-4 text-sm">
+          <span className="text-gray-500">Открытых: <b className="text-gray-900">{openCount}</b></span>
+          <span className="text-gray-500">Выиграно: <b className="text-green-600">{wonCount}</b></span>
+          <span className="text-gray-500">Проиграно: <b className="text-red-500">{lostCount}</b></span>
+        </div>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700"
@@ -106,43 +124,70 @@ export default function DealsPage() {
                         snapshot.isDraggingOver ? 'bg-indigo-50' : 'bg-gray-100'
                       }`}
                     >
-                      {stageDeals(stage.id).map((deal, index) => (
-                        <Draggable key={deal.id} draggableId={deal.id} index={index}>
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 cursor-grab"
-                            >
-                              <div className="font-medium text-sm text-gray-900">{deal.title}</div>
-                              {deal.amount > 0 && (
-                                <div className="text-indigo-600 font-semibold text-sm mt-1">
-                                  {formatCurrency(deal.amount)}
+                      {stageDeals(stage.id).map((deal, index) => {
+                        const badge = statusBadge[deal.status]
+                        return (
+                          <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`bg-white rounded-lg p-3 shadow-sm border cursor-grab ${
+                                  deal.status === 'WON' ? 'border-green-200' :
+                                  deal.status === 'LOST' ? 'border-red-200 opacity-70' :
+                                  'border-gray-100'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-1">
+                                  <span className="font-medium text-sm text-gray-900 leading-snug">{deal.title}</span>
+                                  <button onClick={() => deleteDeal(deal.id)} className="text-gray-200 hover:text-red-400 flex-shrink-0 mt-0.5">
+                                    <X size={13} />
+                                  </button>
                                 </div>
-                              )}
-                              {deal.contact && (
-                                <div className="text-xs text-gray-400 mt-1">
-                                  {deal.contact.firstName} {deal.contact.lastName}
-                                </div>
-                              )}
-                              {deal.assignedTo && (
-                                <div className="text-xs text-gray-400">{deal.assignedTo.name}</div>
-                              )}
-                              <div className="flex gap-1 mt-2">
-                                <button
-                                  onClick={() => closeDeal(deal.id, 'WON')}
-                                  className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded hover:bg-green-100"
-                                >Выиграна</button>
-                                <button
-                                  onClick={() => closeDeal(deal.id, 'LOST')}
-                                  className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded hover:bg-red-100"
-                                >Проиграна</button>
+                                {deal.amount > 0 && (
+                                  <div className="text-indigo-600 font-semibold text-sm mt-1">
+                                    {formatCurrency(deal.amount)}
+                                  </div>
+                                )}
+                                {deal.contact && (
+                                  <div className="text-xs text-gray-400 mt-1">
+                                    {deal.contact.firstName} {deal.contact.lastName}
+                                  </div>
+                                )}
+                                {deal.assignedTo && (
+                                  <div className="text-xs text-gray-400">{deal.assignedTo.name}</div>
+                                )}
+
+                                {badge.label && (
+                                  <span className={`inline-block text-xs px-2 py-0.5 rounded-full mt-2 font-medium ${badge.cls}`}>
+                                    {badge.label}
+                                  </span>
+                                )}
+
+                                {deal.status === 'OPEN' && (
+                                  <div className="flex gap-1 mt-2">
+                                    <button
+                                      onClick={() => setStatus(deal.id, 'WON')}
+                                      className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded hover:bg-green-100"
+                                    >Выиграна</button>
+                                    <button
+                                      onClick={() => setStatus(deal.id, 'LOST')}
+                                      className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded hover:bg-red-100"
+                                    >Проиграна</button>
+                                  </div>
+                                )}
+                                {deal.status !== 'OPEN' && (
+                                  <button
+                                    onClick={() => setStatus(deal.id, 'OPEN')}
+                                    className="text-xs text-gray-400 hover:text-indigo-500 mt-1"
+                                  >↩ Вернуть в работу</button>
+                                )}
                               </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
+                            )}
+                          </Draggable>
+                        )
+                      })}
                       {provided.placeholder}
                     </div>
                   )}
