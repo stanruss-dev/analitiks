@@ -9,15 +9,15 @@ export async function GET() {
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
 
   try {
-    const [dealsByStage, allDeals, topManagers, taskStats] = await Promise.all([
+    const [dealsByStage, allDeals, topManagers, taskStats, wonStats] = await Promise.all([
       prisma.stage.findMany({
         include: {
-          deals: { where: { status: 'OPEN' }, select: { amount: true } },
+          deals: { where: { status: { in: ['OPEN', 'WON'] } }, select: { amount: true, status: true } },
         },
         orderBy: { order: 'asc' },
       }),
       prisma.deal.findMany({
-        where: { status: 'OPEN' },
+        where: { status: { in: ['OPEN', 'WON'] } },
         select: { amount: true, createdAt: true },
         orderBy: { createdAt: 'desc' },
       }),
@@ -34,6 +34,11 @@ export async function GET() {
         by: ['status'],
         _count: { status: true },
       }),
+      prisma.deal.aggregate({
+        where: { status: 'WON' },
+        _count: { id: true },
+        _sum: { amount: true },
+      }),
     ])
 
     const stageStats = dealsByStage.map(s => ({
@@ -41,6 +46,8 @@ export async function GET() {
       count: s.deals.length,
       total: s.deals.reduce((sum, d) => sum + d.amount, 0),
     }))
+
+    const wonTotal = { count: wonStats._count.id, amount: wonStats._sum.amount ?? 0 }
 
     // Группируем сделки по месяцам вручную
     const monthMap = new Map<string, { count: number; total: number }>()
@@ -64,7 +71,7 @@ export async function GET() {
       .sort((a, b) => b.wonAmount - a.wonAmount)
       .slice(0, 5)
 
-    return Response.json({ stageStats, dealsByMonth, managerStats, taskStats })
+    return Response.json({ stageStats, dealsByMonth, managerStats, taskStats, wonTotal })
   } catch (error) {
     log.error('Ошибка получения аналитики', error)
     return Response.json({ error: 'Ошибка сервера' }, { status: 500 })

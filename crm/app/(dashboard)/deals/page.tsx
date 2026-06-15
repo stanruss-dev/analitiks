@@ -45,13 +45,22 @@ export default function DealsPage() {
     if (!result.destination) return
     const dealId = result.draggableId
     const newStageId = result.destination.droppableId
+    const destStage = stages.find(s => s.id === newStageId)
+    const isWon = destStage?.name === 'Выполнено'
 
-    setDeals(prev => prev.map(d => d.id === dealId ? { ...d, stageId: newStageId } : d))
+    setDeals(prev => prev.map(d =>
+      d.id === dealId
+        ? { ...d, stageId: newStageId, ...(isWon ? { status: 'WON' } : {}) }
+        : d
+    ))
 
     await fetch(`/api/deals/${dealId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stageId: newStageId }),
+      body: JSON.stringify({
+        stageId: newStageId,
+        ...(isWon ? { status: 'WON', closedAt: new Date().toISOString() } : {}),
+      }),
     })
   }
 

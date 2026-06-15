@@ -10,6 +10,7 @@ interface AnalyticsData {
   dealsByMonth: { month: string; count: number; total: number }[]
   managerStats: { name: string; wonDeals: number; wonAmount: number }[]
   taskStats: { status: string; _count: { status: number } }[]
+  wonTotal: { count: number; amount: number }
 }
 
 export default function AnalyticsPage() {
@@ -37,14 +38,22 @@ export default function AnalyticsPage() {
     <div className="flex flex-col flex-1">
       <Header title="Аналитика" />
       <div className="flex-1 overflow-auto p-6 space-y-6 bg-gray-50 dark:bg-gray-950">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Всего открытых сделок</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Открытых сделок</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{totalDeals}</div>
           </div>
           <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Общая сумма воронки</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Сумма воронки</div>
             <div className="text-3xl font-bold text-indigo-600">{formatCurrency(totalAmount)}</div>
+          </div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Закрыто (WON)</div>
+            <div className="text-3xl font-bold text-green-600">{data.wonTotal?.count ?? 0}</div>
+          </div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Выручка (WON)</div>
+            <div className="text-3xl font-bold text-green-600">{formatCurrency(data.wonTotal?.amount ?? 0)}</div>
           </div>
         </div>
 
