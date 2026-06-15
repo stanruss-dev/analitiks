@@ -12,12 +12,12 @@ export async function GET() {
     const [dealsByStage, allDeals, topManagers, taskStats, wonStats] = await Promise.all([
       prisma.stage.findMany({
         include: {
-          deals: { where: { status: { in: ['OPEN', 'WON'] } }, select: { amount: true, status: true } },
+          deals: { where: { status: 'OPEN' }, select: { amount: true } },
         },
         orderBy: { order: 'asc' },
       }),
       prisma.deal.findMany({
-        where: { status: { in: ['OPEN', 'WON'] } },
+        where: { status: 'OPEN' },
         select: { amount: true, createdAt: true },
         orderBy: { createdAt: 'desc' },
       }),
