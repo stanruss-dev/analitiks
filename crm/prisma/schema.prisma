@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id         String     @id @default(cuid())
+  name       String
+  email      String     @unique
+  password   String
+  role       Role       @default(USER)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  deals      Deal[]     @relation("AssignedDeals")
+  tasks      Task[]     @relation("AssignedTasks")
+  activities Activity[]
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  USER
+}
+
+model Contact {
+  id         String     @id @default(cuid())
+  firstName  String
+  lastName   String
+  phones     String     @default("[]")
+  emails     String     @default("[]")
+  position   String?
+  companyId  String?
+  company    Company?   @relation(fields: [companyId], references: [id])
+  tags       String     @default("[]")
+  deals      Deal[]
+  tasks      Task[]
+  activities Activity[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Company {
+  id        String    @id @default(cuid())
+  name      String
+  inn       String?
+  website   String?
+  address   String?
+  phones    String    @default("[]")
+  contacts  Contact[]
+  deals     Deal[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Pipeline {
+  id     String  @id @default(cuid())
+  name   String
+  stages Stage[]
+}
+
+model Stage {
+  id         String   @id @default(cuid())
+  name       String
+  order      Int
+  color      String   @default("#6366f1")
+  pipelineId String
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id])
+  deals      Deal[]
+}
+
+model Deal {
+  id           String     @id @default(cuid())
+  title        String
+  amount       Float      @default(0)
+  stageId      String
+  stage        Stage      @relation(fields: [stageId], references: [id])
+  contactId    String?
+  contact      Contact?   @relation(fields: [contactId], references: [id])
+  companyId    String?
+  company      Company?   @relation(fields: [companyId], references: [id])
+  assignedToId String?
+  assignedTo   User?      @relation("AssignedDeals", fields: [assignedToId], references: [id])
+  closedAt     DateTime?
+  tags         String     @default("[]")
+  status       DealStatus @default(OPEN)
+  tasks        Task[]
+  activities   Activity[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  type         TaskType   @default(TASK)
+  priority     Priority   @default(MEDIUM)
+  status       TaskStatus @default(PENDING)
+  dueDate      DateTime?
+  assignedToId String?
+  assignedTo   User?      @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  dealId       String?
+  deal         Deal?      @relation(fields: [dealId], references: [id])
+  contactId    String?
+  contact      Contact?   @relation(fields: [contactId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+enum TaskType {
+  CALL
+  MEETING
+  EMAIL
+  TASK
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  OVERDUE
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  type      ActivityType
+  content   String
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  dealId    String?
+  deal      Deal?        @relation(fields: [dealId], references: [id])
+  contactId String?
+  contact   Contact?     @relation(fields: [contactId], references: [id])
+  createdAt DateTime     @default(now())
+}
+
+enum ActivityType {
+  NOTE
+  CALL_LOG
+  STATUS_CHANGE
+  DEAL_CREATED
+  CONTACT_CREATED
+  TASK_CREATED
+  TASK_COMPLETED
+}
