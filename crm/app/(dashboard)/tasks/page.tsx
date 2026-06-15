@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { Header } from '@/components/header'
@@ -110,7 +110,7 @@ export default function TasksPage() {
         {tasks.map(t => (
           <div key={t.id} className={cn(
             'bg-white rounded-xl p-4 shadow-sm border flex items-start gap-4',
-            t.status === 'DONE' ? 'border-gray-100 opacity-60' : 'border-gray-200'
+            t.status === 'DONE' ? 'border-gray-100 opacity-60' : 'border-gray-200 dark:border-gray-700'
           )}>
             <button onClick={() => t.status !== 'DONE' && complete(t.id)} className="mt-0.5 flex-shrink-0">
               {t.status === 'DONE' ? <CheckSquare size={18} className="text-green-500" /> : <Square size={18} className="text-gray-300 hover:text-indigo-500" />}
@@ -136,7 +136,7 @@ export default function TasksPage() {
                 <span className={cn('ml-auto px-2 py-0.5 rounded-full text-xs',
                   t.status === 'DONE' ? 'bg-green-50 text-green-600' :
                   t.status === 'OVERDUE' ? 'bg-red-50 text-red-600' :
-                  t.status === 'IN_PROGRESS' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-600'
+                  t.status === 'IN_PROGRESS' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-600 dark:text-gray-400'
                 )}>
                   {statusLabels[t.status]}
                 </span>
@@ -151,7 +151,7 @@ export default function TasksPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl dark:shadow-gray-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-lg">Новая задача</h2>
               <button onClick={() => setShowModal(false)}><X size={20} /></button>
@@ -160,7 +160,7 @@ export default function TasksPage() {
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Название *</label>
                 <input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   placeholder="Позвонить клиенту" />
               </div>
               <div>
@@ -173,7 +173,7 @@ export default function TasksPage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Тип</label>
                   <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                     <option value="TASK">Задача</option>
                     <option value="CALL">Звонок</option>
                     <option value="MEETING">Встреча</option>
@@ -183,7 +183,7 @@ export default function TasksPage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Приоритет</label>
                   <select value={form.priority} onChange={e => setForm(p => ({ ...p, priority: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                     <option value="LOW">Низкий</option>
                     <option value="MEDIUM">Средний</option>
                     <option value="HIGH">Высокий</option>
@@ -193,11 +193,11 @@ export default function TasksPage() {
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Срок</label>
                 <input type="datetime-local" value={form.dueDate} onChange={e => setForm(p => ({ ...p, dueDate: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
               </div>
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setShowModal(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm hover:bg-gray-50">Отмена</button>
+                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Отмена</button>
                 <button onClick={createTask}
                   className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm hover:bg-indigo-700">Создать</button>
               </div>

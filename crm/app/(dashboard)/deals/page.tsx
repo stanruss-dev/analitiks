@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
@@ -92,11 +92,11 @@ export default function DealsPage() {
   return (
     <div className="flex flex-col flex-1">
       <Header title="Воронка сделок" />
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-500">Открытых: <b className="text-gray-900">{openCount}</b></span>
-          <span className="text-gray-500">Выиграно: <b className="text-green-600">{wonCount}</b></span>
-          <span className="text-gray-500">Проиграно: <b className="text-red-500">{lostCount}</b></span>
+          <span className="text-gray-500 dark:text-gray-400">Открытых: <b className="text-gray-900 dark:text-gray-100">{openCount}</b></span>
+          <span className="text-gray-500 dark:text-gray-400">Выиграно: <b className="text-green-600">{wonCount}</b></span>
+          <span className="text-gray-500 dark:text-gray-400">Проиграно: <b className="text-red-500">{lostCount}</b></span>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -106,14 +106,14 @@ export default function DealsPage() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-x-auto p-6">
+      <div className="flex-1 overflow-x-auto p-6 bg-gray-50 dark:bg-gray-950">
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex gap-4 h-full min-h-96">
             {stages.map(stage => (
               <div key={stage.id} className="flex flex-col w-64 flex-shrink-0">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: stage.color }} />
-                  <span className="font-medium text-sm text-gray-700">{stage.name}</span>
+                  <span className="font-medium text-sm text-gray-700 dark:text-gray-300">{stage.name}</span>
                   <span className="text-xs text-gray-400 ml-auto">{stageDeals(stage.id).length}</span>
                 </div>
                 <Droppable droppableId={stage.id}>
@@ -122,7 +122,7 @@ export default function DealsPage() {
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       className={`flex-1 rounded-xl p-2 min-h-24 space-y-2 transition-colors ${
-                        snapshot.isDraggingOver ? 'bg-indigo-50' : 'bg-gray-100'
+                        snapshot.isDraggingOver ? 'bg-indigo-50 dark:bg-indigo-950' : 'bg-gray-100 dark:bg-gray-800'
                       }`}
                     >
                       {stageDeals(stage.id).map((deal, index) => {
@@ -134,10 +134,10 @@ export default function DealsPage() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={`bg-white rounded-lg p-3 shadow-sm border cursor-grab ${
-                                  deal.status === 'WON' ? 'border-green-200' :
-                                  deal.status === 'LOST' ? 'border-red-200 opacity-70' :
-                                  'border-gray-100'
+                                className={`bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border cursor-grab ${
+                                  deal.status === 'WON' ? 'border-green-200 dark:border-green-800' :
+                                  deal.status === 'LOST' ? 'border-red-200 dark:border-red-900 opacity-70' :
+                                  'border-gray-100 dark:border-gray-700'
                                 }`}
                               >
                                 <div className="flex items-start justify-between gap-1">
@@ -201,9 +201,9 @@ export default function DealsPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl dark:shadow-gray-900">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg">Новая сделка</h2>
+              <h2 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Новая сделка</h2>
               <button onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div className="space-y-4">
@@ -212,7 +212,7 @@ export default function DealsPage() {
                 <input
                   value={newDeal.title}
                   onChange={e => setNewDeal(p => ({ ...p, title: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   placeholder="Название сделки"
                 />
               </div>
@@ -222,7 +222,7 @@ export default function DealsPage() {
                   type="number"
                   value={newDeal.amount}
                   onChange={e => setNewDeal(p => ({ ...p, amount: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   placeholder="0"
                 />
               </div>
@@ -231,7 +231,7 @@ export default function DealsPage() {
                 <select
                   value={newDeal.stageId}
                   onChange={e => setNewDeal(p => ({ ...p, stageId: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   {stages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
@@ -239,7 +239,7 @@ export default function DealsPage() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm hover:bg-gray-50"
+                  className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
                 >Отмена</button>
                 <button
                   onClick={createDeal}

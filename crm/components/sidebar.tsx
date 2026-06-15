@@ -24,8 +24,8 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-60 min-h-screen bg-gray-900 flex flex-col">
-      <div className="h-16 flex items-center px-6 border-b border-gray-700">
+    <aside className="w-60 min-h-screen bg-gray-900 dark:bg-gray-950 flex flex-col border-r border-gray-800">
+      <div className="h-16 flex items-center px-6 border-b border-gray-700 dark:border-gray-800">
         <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mr-3">
           <span className="text-white font-bold text-sm">C</span>
         </div>
@@ -43,7 +43,7 @@ export function Sidebar() {
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 active
                   ? 'bg-indigo-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  : 'text-gray-400 hover:bg-gray-800 dark:hover:bg-gray-800 hover:text-white'
               )}
             >
               <Icon size={18} />
@@ -53,7 +53,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-gray-700">
+      <div className="px-3 py-4 border-t border-gray-700 dark:border-gray-800">
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white w-full transition-colors"

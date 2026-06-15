@@ -5,6 +5,38 @@ import { getLogger } from '@/lib/logger'
 
 const log = getLogger('api/deals/[id]')
 
+export async function GET(_req: NextRequest, ctx: RouteContext<'/api/deals/[id]'>) {
+  const session = await auth()
+  if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
+
+  const { id } = await ctx.params
+
+  try {
+    const deal = await prisma.deal.findUnique({
+      where: { id },
+      include: {
+        stage: true,
+        contact: true,
+        company: true,
+        assignedTo: { select: { id: true, name: true, email: true } },
+        tasks: {
+          include: { assignedTo: { select: { id: true, name: true } } },
+          orderBy: { createdAt: 'desc' },
+        },
+        activities: {
+          include: { user: { select: { id: true, name: true } } },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    })
+    if (!deal) return Response.json({ error: 'Не найдено' }, { status: 404 })
+    return Response.json(deal)
+  } catch (error) {
+    log.error('Ошибка получения сделки', error)
+    return Response.json({ error: 'Ошибка сервера' }, { status: 500 })
+  }
+}
+
 export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/deals/[id]'>) {
   const session = await auth()
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
@@ -26,15 +26,15 @@ export default function SettingsPage() {
     <div className="flex flex-col flex-1">
       <Header title="Настройки" />
       <div className="flex-1 p-6 max-w-2xl space-y-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="font-semibold text-gray-900 mb-4">Профиль</h2>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Профиль</h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Имя</label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
             <div>
@@ -55,8 +55,8 @@ export default function SettingsPage() {
         </div>
 
         {session?.user.role === 'ADMIN' && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h2 className="font-semibold text-gray-900 mb-4">Администрирование</h2>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Администрирование</h2>
             <Link
               href="/settings/users"
               className="flex items-center gap-3 text-sm text-gray-700 hover:text-indigo-600 transition-colors"

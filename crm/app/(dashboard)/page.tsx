@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth'
+﻿import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { Header } from '@/components/header'
 import { formatCurrency } from '@/lib/utils'
@@ -56,28 +56,28 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col flex-1">
       <Header title="Дашборд" />
-      <main className="flex-1 p-6 space-y-6">
+      <main className="flex-1 p-6 space-y-6 bg-gray-50 dark:bg-gray-950">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {stats.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <div key={label} className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${color}`}>
                 <Icon size={20} />
               </div>
-              <div className="text-2xl font-bold text-gray-900">{value}</div>
-              <div className="text-sm text-gray-500 mt-1">{label}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{label}</div>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-            <h2 className="font-semibold text-gray-900 mb-4">Последние сделки</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Последние сделки</h2>
             <div className="space-y-3">
               {openDeals.length === 0 && <p className="text-gray-400 text-sm">Нет открытых сделок</p>}
               {openDeals.map(deal => (
-                <div key={deal.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                <div key={deal.id} className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-gray-700 last:border-0">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{deal.title}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{deal.title}</div>
                     <div className="text-xs text-gray-400">{deal.stage.name} · {deal.assignedTo?.name || 'Не назначен'}</div>
                   </div>
                   <div className="text-sm font-semibold text-indigo-600">{formatCurrency(deal.amount)}</div>
@@ -86,15 +86,15 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-            <h2 className="font-semibold text-gray-900 mb-4">Последние события</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Последние события</h2>
             <div className="space-y-3">
               {recentActivities.length === 0 && <p className="text-gray-400 text-sm">Нет событий</p>}
               {recentActivities.map(act => (
-                <div key={act.id} className="flex gap-3 py-2 border-b border-gray-50 last:border-0">
+                <div key={act.id} className="flex gap-3 py-2 border-b border-gray-50 dark:border-gray-700 last:border-0">
                   <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-600">{activityLabels[act.type] || act.type}</div>
-                    <div className="text-sm text-gray-700 mt-0.5">{act.content}</div>
+                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400">{activityLabels[act.type] || act.type}</div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300 mt-0.5">{act.content}</div>
                     <div className="text-xs text-gray-400 mt-0.5">{act.user.name}</div>
                   </div>
                 </div>

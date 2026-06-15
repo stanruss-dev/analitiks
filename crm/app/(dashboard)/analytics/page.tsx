@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { Header } from '@/components/header'
@@ -36,20 +36,20 @@ export default function AnalyticsPage() {
   return (
     <div className="flex flex-col flex-1">
       <Header title="Аналитика" />
-      <div className="flex-1 overflow-auto p-6 space-y-6">
+      <div className="flex-1 overflow-auto p-6 space-y-6 bg-gray-50 dark:bg-gray-950">
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <div className="text-sm text-gray-500 mb-1">Всего открытых сделок</div>
-            <div className="text-3xl font-bold text-gray-900">{totalDeals}</div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Всего открытых сделок</div>
+            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{totalDeals}</div>
           </div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <div className="text-sm text-gray-500 mb-1">Общая сумма воронки</div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Общая сумма воронки</div>
             <div className="text-3xl font-bold text-indigo-600">{formatCurrency(totalAmount)}</div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-          <h2 className="font-semibold text-gray-900 mb-4">Сделки по стадиям</h2>
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Сделки по стадиям</h2>
           <div className="space-y-3">
             {data.stageStats.map(s => (
               <div key={s.name} className="flex items-center gap-4">
@@ -62,15 +62,15 @@ export default function AnalyticsPage() {
                     <span className="text-white text-xs font-medium">{s.count}</span>
                   </div>
                 </div>
-                <div className="w-28 text-right text-sm font-medium text-gray-700">{formatCurrency(s.total)}</div>
+                <div className="w-28 text-right text-sm font-medium text-gray-700 dark:text-gray-300">{formatCurrency(s.total)}</div>
               </div>
             ))}
             {data.stageStats.length === 0 && <p className="text-gray-400 text-sm">Нет данных</p>}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-          <h2 className="font-semibold text-gray-900 mb-4">Сделки по месяцам</h2>
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Сделки по месяцам</h2>
           {data.dealsByMonth.length === 0 ? (
             <p className="text-gray-400 text-sm">Нет данных</p>
           ) : (
@@ -87,8 +87,8 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <h2 className="font-semibold text-gray-900 mb-4">Топ менеджеры</h2>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Топ менеджеры</h2>
             {data.managerStats.length === 0 ? (
               <p className="text-gray-400 text-sm">Нет закрытых сделок</p>
             ) : (
@@ -99,8 +99,8 @@ export default function AnalyticsPage() {
                       {i + 1}
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">{m.name}</div>
-                      <div className="text-xs text-gray-500">{m.wonDeals} сделок</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{m.name}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{m.wonDeals} сделок</div>
                     </div>
                     <div className="text-sm font-semibold text-green-600">{formatCurrency(m.wonAmount)}</div>
                   </div>
@@ -109,13 +109,13 @@ export default function AnalyticsPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <h2 className="font-semibold text-gray-900 mb-4">Статус задач</h2>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Статус задач</h2>
             <div className="space-y-3">
               {data.taskStats.map(t => (
                 <div key={t.status} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{taskStatusLabels[t.status] || t.status}</span>
-                  <span className="text-sm font-semibold text-gray-900">{t._count.status}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{taskStatusLabels[t.status] || t.status}</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t._count.status}</span>
                 </div>
               ))}
               {data.taskStats.length === 0 && <p className="text-gray-400 text-sm">Нет задач</p>}
