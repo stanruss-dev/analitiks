@@ -27,6 +27,17 @@ interface Deal {
   }[]
 }
 
+const LOST_REASONS = [
+  'Высокая цена',
+  'Выбрали конкурента',
+  'Нет бюджета',
+  'Не устроили условия',
+  'Отложили решение',
+  'Не вышли на связь',
+  'Передумали',
+  'Другое',
+]
+
 const statusMap: Record<string, { label: string; cls: string }> = {
   OPEN: { label: 'Открыта', cls: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },
   WON:  { label: 'Выиграна', cls: 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
@@ -57,7 +68,7 @@ export default function DealPage({ params }: { params: Promise<{ id: string }> }
   const [amountDraft, setAmountDraft] = useState('')
   const [noteText, setNoteText] = useState('')
   const [lostModal, setLostModal] = useState(false)
-  const [lostReason, setLostReason] = useState('')
+  const [lostReasons, setLostReasons] = useState<string[]>([])
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/deals/${id}`)
@@ -202,7 +213,7 @@ export default function DealPage({ params }: { params: Promise<{ id: string }> }
             <div className="flex gap-2 mt-4">
               <button onClick={() => patch({ status: 'WON' })}
                 className="bg-green-500 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-green-600">Выиграна</button>
-              <button onClick={() => { setLostReason(''); setLostModal(true) }}
+              <button onClick={() => { setLostReasons([]); setLostModal(true) }}
                 className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm px-4 py-1.5 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50">Проиграна</button>
             </div>
           )}
@@ -221,19 +232,31 @@ export default function DealPage({ params }: { params: Promise<{ id: string }> }
                   <h2 className="font-semibold text-lg text-gray-900 dark:text-gray-100">Причина отказа</h2>
                   <button onClick={() => setLostModal(false)}><X size={20} /></button>
                 </div>
-                <textarea
-                  value={lostReason}
-                  onChange={e => setLostReason(e.target.value)}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 resize-none"
-                  rows={3}
-                  placeholder="Например: высокая цена, выбрали конкурента..."
-                  autoFocus
-                />
-                <div className="flex gap-3 mt-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Можно выбрать несколько</p>
+                <div className="space-y-2">
+                  {LOST_REASONS.map(reason => (
+                    <label key={reason} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={lostReasons.includes(reason)}
+                        onChange={() => setLostReasons(prev =>
+                          prev.includes(reason) ? prev.filter(r => r !== reason) : [...prev, reason]
+                        )}
+                        className="w-4 h-4 accent-red-500 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">
+                        {reason}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex gap-3 mt-5">
                   <button onClick={() => setLostModal(false)}
                     className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Отмена</button>
-                  <button onClick={() => { patch({ status: 'LOST', lostReason }); setLostModal(false) }}
-                    className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm hover:bg-red-600">Закрыть сделку</button>
+                  <button
+                    onClick={() => { patch({ status: 'LOST', lostReason: lostReasons.join(', ') }); setLostModal(false) }}
+                    disabled={lostReasons.length === 0}
+                    className="flex-1 bg-red-500 text-white py-2 rounded-lg text-sm hover:bg-red-600 disabled:opacity-40">Закрыть сделку</button>
                 </div>
               </div>
             </div>
