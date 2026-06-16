@@ -16,6 +16,24 @@ interface Deal {
   lostReason?: string | null
 }
 
+function parseTags(raw: string): string[] {
+  try { return JSON.parse(raw) } catch { return [] }
+}
+
+const PRESET_TAGS = [
+  'VIP', 'Срочно', 'Холодный', 'Тёплый', 'Горячий',
+  'Крупный', 'Постоянный клиент', 'Новый клиент',
+  'Партнёр', 'Тендер', 'Рассрочка', 'Повторная покупка',
+]
+
+const TAG_COLORS = [
+  'bg-indigo-100 text-indigo-700', 'bg-purple-100 text-purple-700',
+  'bg-blue-100 text-blue-700', 'bg-teal-100 text-teal-700',
+  'bg-amber-100 text-amber-700', 'bg-pink-100 text-pink-700',
+  'bg-green-100 text-green-700', 'bg-orange-100 text-orange-700',
+]
+const tagColor = (tag: string) => TAG_COLORS[Math.abs([...tag].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)) % TAG_COLORS.length]
+
 const LOST_REASONS = [
   'Высокая цена',
   'Выбрали конкурента',
@@ -39,6 +57,9 @@ export default function DealsPage() {
   const [showModal, setShowModal] = useState(false)
   const [newDeal, setNewDeal] = useState({ title: '', amount: '', stageId: '' })
   const [lostModal, setLostModal] = useState<{ dealId: string; reasons: string[] } | null>(null)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [newDealTagsChecked, setNewDealTagsChecked] = useState<string[]>([])
+  const [newDealTagsCustom, setNewDealTagsCustom] = useState('')
 
   const load = useCallback(async () => {
     const [pRes, dRes] = await Promise.all([
@@ -79,15 +100,19 @@ export default function DealsPage() {
 
   async function createDeal() {
     if (!newDeal.title || !newDeal.stageId) return
+    const customTags = newDealTagsCustom.split(',').map(t => t.trim()).filter(Boolean)
+    const tags = Array.from(new Set([...newDealTagsChecked, ...customTags]))
     const res = await fetch('/api/deals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...newDeal, amount: parseFloat(newDeal.amount) || 0 }),
+      body: JSON.stringify({ ...newDeal, amount: parseFloat(newDeal.amount) || 0, tags }),
     })
     if (res.ok) {
       const deal = await res.json()
       setDeals(prev => [...prev, deal])
       setNewDeal({ title: '', amount: '', stageId: stages[0]?.id || '' })
+      setNewDealTagsChecked([])
+      setNewDealTagsCustom('')
       setShowModal(false)
     }
   }
@@ -142,7 +167,10 @@ export default function DealsPage() {
     setDeals(prev => prev.filter(d => d.id !== id))
   }
 
-  const stageDeals = (stageId: string) => deals.filter(d => d.stageId === stageId)
+  const allTags = Array.from(new Set(deals.flatMap(d => parseTags(d.tags)))).sort()
+  const toggleTag = (tag: string) => setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+  const visibleDeals = selectedTags.length === 0 ? deals : deals.filter(d => selectedTags.every(t => parseTags(d.tags).includes(t)))
+  const stageDeals = (stageId: string) => visibleDeals.filter(d => d.stageId === stageId)
   const openCount = deals.filter(d => d.status === 'OPEN').length
   const wonCount  = deals.filter(d => d.status === 'WON').length
   const lostCount = deals.filter(d => d.status === 'LOST').length
@@ -163,6 +191,28 @@ export default function DealsPage() {
           <Plus size={16} /> Новая сделка
         </button>
       </div>
+
+      {allTags.length > 0 && (
+        <div className="flex items-center gap-2 px-6 py-2 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 flex-wrap">
+          <span className="text-xs text-gray-400 mr-1">Теги:</span>
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              onClick={() => toggleTag(tag)}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${
+                selectedTags.includes(tag)
+                  ? 'bg-indigo-600 text-white'
+                  : tagColor(tag) + ' opacity-70 hover:opacity-100'
+              }`}
+            >{tag}</button>
+          ))}
+          {selectedTags.length > 0 && (
+            <button onClick={() => setSelectedTags([])} className="text-xs text-gray-400 hover:text-gray-600 ml-1">
+              сбросить
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex-1 overflow-x-auto p-6 bg-gray-50 dark:bg-gray-950">
         <DragDropContext onDragEnd={onDragEnd}>
@@ -222,6 +272,13 @@ export default function DealsPage() {
                                 )}
                                 {deal.assignedTo && (
                                   <div className="text-xs text-gray-400">{deal.assignedTo.name}</div>
+                                )}
+                                {parseTags(deal.tags).length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1.5">
+                                    {parseTags(deal.tags).map(tag => (
+                                      <span key={tag} className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${tagColor(tag)}`}>{tag}</span>
+                                    ))}
+                                  </div>
                                 )}
 
                                 {badge.label && (
@@ -340,6 +397,30 @@ export default function DealsPage() {
                 >
                   {stages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Теги</label>
+                <div className="grid grid-cols-2 gap-1.5 mb-3">
+                  {PRESET_TAGS.map(tag => (
+                    <label key={tag} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={newDealTagsChecked.includes(tag)}
+                        onChange={() => setNewDealTagsChecked(prev =>
+                          prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+                        )}
+                        className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100">{tag}</span>
+                    </label>
+                  ))}
+                </div>
+                <input
+                  value={newDealTagsCustom}
+                  onChange={e => setNewDealTagsCustom(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  placeholder="Свои теги через запятую..."
+                />
               </div>
               <div className="flex gap-3 pt-2">
                 <button
